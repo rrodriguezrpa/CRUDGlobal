@@ -31,6 +31,10 @@ public partial class App : Application
 
         var api = new ApiClient(ApiHostLib.DefaultUrl);
 
+        // Evita que la app se cierre al cerrarse la ventana de login (ultima ventana -> 0)
+        // antes de mostrar la principal. Se restaura OnLastWindowClose tras abrir MainWindow.
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
         // Gate de login (solo escritorio). La API CRUD queda abierta a proposito para pruebas.
         var login = new LoginWindow(api);
         if (login.ShowDialog() != true || login.UsuarioAutenticado is null)
@@ -40,6 +44,8 @@ public partial class App : Application
         }
 
         var ventana = new MainWindow(api, login.UsuarioAutenticado);
+        MainWindow = ventana;
+        ShutdownMode = ShutdownMode.OnLastWindowClose;
         ventana.Show();
     }
 
