@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Empleado> Empleados => Set<Empleado>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -16,5 +17,7 @@ public class AppDbContext : DbContext
         e.HasIndex(x => x.NumeroEmpleado).IsUnique();
         e.Property(x => x.Salario).HasColumnType("decimal(10,2)");
         e.Property(x => x.Departamento).HasConversion<int>();
+
+        modelBuilder.Entity<Usuario>().HasIndex(x => x.Username).IsUnique();
     }
 }

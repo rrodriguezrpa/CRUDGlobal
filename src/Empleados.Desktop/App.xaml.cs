@@ -29,7 +29,17 @@ public partial class App : Application
             return;
         }
 
-        var ventana = new MainWindow();
+        var api = new ApiClient(ApiHostLib.DefaultUrl);
+
+        // Gate de login (solo escritorio). La API CRUD queda abierta a proposito para pruebas.
+        var login = new LoginWindow(api);
+        if (login.ShowDialog() != true || login.UsuarioAutenticado is null)
+        {
+            Shutdown(0);
+            return;
+        }
+
+        var ventana = new MainWindow(api, login.UsuarioAutenticado);
         ventana.Show();
     }
 

@@ -1,0 +1,45 @@
+<Window x:Class="Empleados.Desktop.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Acceso - Gestion de Empleados" Width="400" Height="430"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="{StaticResource BrandLight}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera -->
+        <Border Grid.Row="0" Background="{StaticResource BrandPrimary}" Padding="22,18">
+            <StackPanel>
+                <TextBlock Text="Gestion de Empleados" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="Acceso al sistema" Foreground="#9DB8D2" FontSize="13" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Formulario -->
+        <StackPanel Grid.Row="1" Margin="28,24">
+            <TextBlock Text="Usuario" Margin="0,0,0,4"/>
+            <TextBox x:Name="TxtUsuario" Height="32" VerticalContentAlignment="Center" Margin="0,0,0,14"/>
+
+            <TextBlock Text="Contrasena" Margin="0,0,0,4"/>
+            <PasswordBox x:Name="TxtPassword" Height="32" VerticalContentAlignment="Center" Margin="0,0,0,8"
+                         KeyDown="TxtPassword_KeyDown"/>
+
+            <TextBlock x:Name="ErrorLabel" Foreground="{StaticResource BrandDanger}"
+                       TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed"/>
+
+            <Button x:Name="BtnEntrar" Content="Entrar" Click="BtnEntrar_Click"
+                    Height="38" Margin="0,6,0,0" FontSize="14"/>
+
+            <Border Background="#EAF0F6" CornerRadius="4" Padding="12" Margin="0,18,0,0">
+                <StackPanel>
+                    <TextBlock Text="Credenciales de demo:" FontWeight="SemiBold" Foreground="#55606B"/>
+                    <TextBlock Text="admin / admin123    (Admin)" Foreground="#55606B" Margin="0,4,0,0"/>
+                    <TextBlock Text="rrhh  / rrhh123     (Usuario)" Foreground="#55606B"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,24 +1,28 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Empleados.Api.Dtos;
 using Empleados.Api.Models;
 
 namespace Empleados.Desktop;
 
 public partial class MainWindow : Window
 {
-    private readonly ApiClient _api = new(Empleados.Api.ApiHost.DefaultUrl);
+    private readonly ApiClient _api;
+    private readonly LoginResponse _usuario;
     private readonly Random _rng = new();
 
     private int _page = 1;
     private int _pageSize = 5;
     private int _totalPages = 1;
 
-    public MainWindow()
+    public MainWindow(ApiClient api, LoginResponse usuario)
     {
         InitializeComponent();
+        _api = api;
+        _usuario = usuario;
 
-        SessionLabel.Text = $"Sesion: {SelectorObfuscator.SessionToken}";
+        SessionLabel.Text = $"{_usuario.NombreCompleto} ({_usuario.Rol})  ·  Sesion: {SelectorObfuscator.SessionToken}";
         // BARRERA 1: titulo de ventana variable por sesion (rompe selectores por title).
         Title = $"Gestion de Empleados [{SelectorObfuscator.SessionToken}]";
 

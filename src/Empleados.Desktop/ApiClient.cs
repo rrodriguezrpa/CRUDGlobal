@@ -21,6 +21,28 @@ public class ApiClient
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(15) };
     }
 
+    public async Task<ApiResult<LoginResponse>> LoginAsync(string username, string password)
+    {
+        try
+        {
+            var req = new LoginRequest { Username = username, Password = password };
+            using var msg = new HttpRequestMessage(HttpMethod.Post, "api/auth/login")
+            {
+                Content = JsonContent.Create(req, options: JsonOpts)
+            };
+            var resp = await _http.SendAsync(msg);
+            if (!resp.IsSuccessStatusCode)
+                return new ApiResult<LoginResponse>(false, null, await LeerError(resp), resp.StatusCode);
+
+            var data = await resp.Content.ReadFromJsonAsync<LoginResponse>(JsonOpts);
+            return new ApiResult<LoginResponse>(true, data);
+        }
+        catch (Exception ex)
+        {
+            return new ApiResult<LoginResponse>(false, null, ex.Message);
+        }
+    }
+
     public async Task<ApiResult<PagedResult<Empleado>>> ListarAsync(
         string? search, Departamento? departamento, int page, int pageSize)
     {

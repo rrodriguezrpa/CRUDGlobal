@@ -16,9 +16,16 @@ servidores, ni runtimes. Doble-click y listo.
 2. Descarga **`Empleados.Desktop.exe`**.
 3. Doble-click.
 
-Se abre la ventana de gestion y, a la vez, queda disponible una API en
+Se abre la pantalla de **acceso** y, a la vez, queda disponible una API en
 `http://localhost:5230`. La primera vez se crea automaticamente una base de datos local con
 15 empleados de ejemplo (en `%LOCALAPPDATA%\EmpleadosApp`).
+
+**Credenciales de demo:**
+
+| Usuario | Contrasena | Rol |
+|---------|------------|-----|
+| `admin` | `admin123` | Admin |
+| `rrhh`  | `rrhh123`  | Usuario |
 
 > No requiere permisos de administrador. Windows SmartScreen puede avisar por ser un
 > ejecutable sin firma digital: pulsa *Mas informacion > Ejecutar de todos modos*.
@@ -78,6 +85,11 @@ El objetivo del demo es mostrar como UiPath supera obstaculos que hacen fallar a
 automatizacion ingenua (clicks por coordenadas, selectores fijos, recorrer datos a ciegas).
 
 **En la interfaz de escritorio:**
+
+0. **Login + aviso de sesion.** Antes de operar hay que autenticarse, y al abrir la pantalla
+   aparece un **aviso de seguridad** que se debe cerrar primero. Un bot que va directo a teclear
+   falla si no gestiona el modal y las credenciales.
+   → *UiPath lo resuelve con gestion de credenciales (Assets/Credential, secure string) y manejo de ventanas.*
 
 1. **Selectores dinamicos.** El identificador interno (`AutomationId`) de cada control
    cambia en cada arranque, y el titulo de la ventana lleva un codigo de sesion variable.

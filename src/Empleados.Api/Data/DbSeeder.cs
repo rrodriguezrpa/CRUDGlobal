@@ -1,4 +1,5 @@
 using Empleados.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Empleados.Api.Data;
 
@@ -7,6 +8,7 @@ public static class DbSeeder
     public static void Seed(AppDbContext db)
     {
         db.Database.EnsureCreated();
+        SeedUsuarios(db);
         if (db.Empleados.Any()) return;
 
         // DNIs con letra de control correcta (modulo 23).
@@ -30,6 +32,30 @@ public static class DbSeeder
         };
 
         db.Empleados.AddRange(empleados);
+        db.SaveChanges();
+    }
+
+    private static void SeedUsuarios(AppDbContext db)
+    {
+        // Crea la tabla si una version anterior de la BD (sin login) no la tenia.
+        // Evita "no such table: Usuarios" al actualizar sobre una BD existente.
+        db.Database.ExecuteSqlRaw(
+            @"CREATE TABLE IF NOT EXISTS ""Usuarios"" (
+                ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Usuarios"" PRIMARY KEY AUTOINCREMENT,
+                ""Username"" TEXT NOT NULL,
+                ""PasswordHash"" TEXT NOT NULL,
+                ""NombreCompleto"" TEXT NOT NULL,
+                ""Rol"" TEXT NOT NULL);
+              CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Usuarios_Username"" ON ""Usuarios"" (""Username"");");
+
+        if (db.Usuarios.Any()) return;
+
+        // Credenciales de demo (ver pantalla de login).
+        db.Usuarios.AddRange(
+            new Usuario { Username = "admin", PasswordHash = PasswordHasher.Hash("admin123"),
+                          NombreCompleto = "Administrador", Rol = "Admin" },
+            new Usuario { Username = "rrhh",  PasswordHash = PasswordHasher.Hash("rrhh123"),
+                          NombreCompleto = "Tecnico de RRHH", Rol = "Usuario" });
         db.SaveChanges();
     }
 }
