@@ -1,50 +1,59 @@
-# Gestion de Empleados — Demo UiPath
+# Gestion de Empleados
 
-Aplicacion de escritorio **+ API REST** para gestionar empleados (CRUD empresarial, RRHH).
-Pensada para **demostrar las virtudes de UiPath**: incluye barreras tipicas que rompen
-las automatizaciones ingenuas y que UiPath resuelve con sus selectores y actividades robustas.
+Aplicacion de escritorio **+ API REST** para gestionar empleados de una empresa (RRHH):
+alta, consulta, edicion y baja. Pensada como **banco de pruebas para automatizacion con
+UiPath**: incluye dificultades habituales del software empresarial que se pueden resolver
+de forma robusta con UiPath, tanto por **interfaz de escritorio** como por **API**.
 
-Todo corre en **un solo ejecutable autocontenido**: la app de escritorio hospeda la API
-embebida y una base de datos SQLite local. El usuario final **no instala nada** (ni .NET, ni
-SQLite, ni servidor). Doble-click y funciona.
-
----
-
-## Instalacion (usuario final)
-
-1. Ve a la pestana **Releases** del repositorio.
-2. Descarga `Empleados.Desktop.exe`.
-3. Doble-click. Se abre la ventana y, en paralelo, la API queda disponible en
-   `http://localhost:5230`.
-
-No requiere permisos de administrador. La base de datos se crea automaticamente en
-`%LOCALAPPDATA%\EmpleadosApp\empleados.db` con 15 empleados de ejemplo.
-
-> Windows SmartScreen puede avisar por ser un exe sin firma. *Mas info > Ejecutar de todos modos.*
+Todo funciona con **un solo ejecutable**. No hay que instalar nada: ni bases de datos, ni
+servidores, ni runtimes. Doble-click y listo.
 
 ---
 
-## Dos formas de probar: escritorio y API
+## Instalacion
 
-La UI de escritorio y la API REST comparten la **misma base de datos**. Lo que creas por la
-API aparece en la tabla al refrescar, y viceversa.
+1. Entra en la pestana **[Releases](../../releases)** del repositorio.
+2. Descarga **`Empleados.Desktop.exe`**.
+3. Doble-click.
 
-### Por escritorio
-Ventana con tabla paginada, busqueda, filtro por departamento y botones Nuevo / Editar / Eliminar.
+Se abre la ventana de gestion y, a la vez, queda disponible una API en
+`http://localhost:5230`. La primera vez se crea automaticamente una base de datos local con
+15 empleados de ejemplo (en `%LOCALAPPDATA%\EmpleadosApp`).
 
-### Por API (REST)
-Con la app abierta, la API esta en `http://localhost:5230`. Swagger UI: `http://localhost:5230/swagger`.
+> No requiere permisos de administrador. Windows SmartScreen puede avisar por ser un
+> ejecutable sin firma digital: pulsa *Mas informacion > Ejecutar de todos modos*.
+
+---
+
+## Como se usa
+
+La interfaz de escritorio y la API **comparten la misma base de datos**. Lo que crees por la
+API aparece en la tabla (al refrescar) y al reves. Eso permite probar la automatizacion por
+los dos caminos contra los mismos datos.
+
+### Por interfaz de escritorio
+
+Tabla de empleados con:
+- **Busqueda** por nombre, apellidos, DNI, email o numero de empleado.
+- **Filtro** por departamento.
+- **Paginacion** (5 / 10 / 20 filas).
+- Botones **Nuevo**, **Editar** (o doble-click en una fila) y **Eliminar**.
+
+### Por API REST
+
+Con la app abierta, la API esta en `http://localhost:5230`.
+Documentacion interactiva (Swagger): **`http://localhost:5230/swagger`**.
 
 | Metodo | Ruta | Descripcion |
 |--------|------|-------------|
 | GET    | `/api/empleados?page=1&pageSize=10&search=&departamento=` | Lista paginada |
-| GET    | `/api/empleados/{id}` | Obtener uno |
-| POST   | `/api/empleados` | Crear (el servidor asigna `NumeroEmpleado`) |
+| GET    | `/api/empleados/{id}` | Obtener un empleado |
+| POST   | `/api/empleados` | Crear (el numero de empleado lo asigna el servidor) |
 | PUT    | `/api/empleados/{id}` | Actualizar |
 | DELETE | `/api/empleados/{id}` | Eliminar |
 | GET    | `/health` | Estado del servicio |
 
-`departamento`: `0=RRHH, 1=IT, 2=Ventas, 3=Finanzas, 4=Operaciones`.
+Departamentos: `0=RRHH, 1=IT, 2=Ventas, 3=Finanzas, 4=Operaciones`.
 
 Ejemplo (PowerShell):
 
@@ -63,76 +72,45 @@ Invoke-RestMethod "http://localhost:5230/api/empleados" -Method Post -Body $body
 
 ---
 
-## Barreras anti-automatizacion (para lucir UiPath)
+## Dificultades incluidas a proposito
 
-Estas dificultades estan **puestas a proposito**. Una grabacion ingenua (clicks por
-coordenadas, selectores por id fijo) falla; UiPath las resuelve.
+El objetivo del demo es mostrar como UiPath supera obstaculos que hacen fallar a una
+automatizacion ingenua (clicks por coordenadas, selectores fijos, recorrer datos a ciegas).
 
-1. **Selectores dinamicos.**
-   El `AutomationId` de cada control cambia en cada arranque (token de sesion + ruido), y el
-   titulo de la ventana incluye un codigo de sesion variable.
-   *UiPath:* anchors, fuzzy selectors, atributos estables (texto, role, idx).
-   Codigo: `SelectorObfuscator.cs`.
+**En la interfaz de escritorio:**
 
-2. **Popups y dialogos modales.**
-   Al eliminar aparece una confirmacion con **orden y posicion de botones aleatorios**, y a
-   veces una **segunda confirmacion**.
-   *UiPath:* click por texto/role, triggers, manejo de ventanas modales.
-   Codigo: `ConfirmDialog.cs`.
+1. **Selectores dinamicos.** El identificador interno (`AutomationId`) de cada control
+   cambia en cada arranque, y el titulo de la ventana lleva un codigo de sesion variable.
+   Una grabacion con selectores fijos deja de funcionar al reabrir la app.
+   → *UiPath lo resuelve con anchors, fuzzy selectors y atributos estables (texto, rol, indice).*
 
-3. **Tabla paginada.**
-   Los datos llegan paginados desde la API; para extraer todo hay que recorrer paginas.
-   *UiPath:* Data Scraping con navegacion entre paginas, o consumir la API directamente.
+2. **Ventanas de confirmacion (popups).** Al eliminar, el dialogo muestra los botones en
+   **orden y posicion aleatorios**, y a veces pide una **segunda confirmacion**.
+   → *UiPath lo resuelve haciendo click por texto/rol y gestionando ventanas modales.*
 
-### Barreras del lado API (errores comunes de desarrollo)
-- **Validacion de DNI espanol** (8 digitos + letra de control modulo 23) -> `400` con detalle.
-- **Duplicados** de DNI o email -> `409 Conflict`.
-- **Rangos** de salario (12.000–250.000 €) y campos obligatorios -> `400`.
-- **`NumeroEmpleado` lo asigna el servidor**, no el cliente.
+3. **Datos paginados.** La tabla muestra los empleados por paginas; para obtener todos hay
+   que navegar entre ellas.
+   → *UiPath lo resuelve con extraccion de datos y navegacion entre paginas, o consumiendo la API.*
+
+**En la API (errores y validaciones tipicos del backend empresarial):**
+
+- **DNI espanol** validado (8 digitos + letra de control) → error `400` con detalle.
+- **Duplicados** de DNI o email → `409 Conflict`.
+- **Rangos** de salario (12.000–250.000 €) y campos obligatorios → `400`.
+- El **numero de empleado lo asigna el servidor**, no el cliente.
 
 ---
 
 ## Arquitectura
 
 ```
-Empleados.Desktop.exe  (un solo binario, self-contained)
-├── WPF UI (escritorio)
-└── ASP.NET Core Web API embebida  ->  SQLite (%LOCALAPPDATA%\EmpleadosApp\empleados.db)
-        http://localhost:5230
+Empleados.Desktop.exe  (un solo binario autocontenido)
+├── Interfaz de escritorio (WPF)
+└── API REST embebida (ASP.NET Core)  ->  base de datos SQLite local
+        http://localhost:5230            (%LOCALAPPDATA%\EmpleadosApp\empleados.db)
 ```
 
-- `src/Empleados.Api` — Web API (EF Core + SQLite, controllers, Swagger). Reutilizable
-  como `ApiHost.Build(...)`. Tambien ejecutable en solitario para pruebas de solo-API.
-- `src/Empleados.Desktop` — WPF. Arranca la API embebida y consume `localhost` via `ApiClient`.
+Stack: .NET 9, WPF, ASP.NET Core, Entity Framework Core, SQLite, Swagger.
 
----
-
-## Compilar desde codigo fuente
-
-Requisitos: **.NET 9 SDK** (solo para compilar; el usuario final no lo necesita).
-
-```powershell
-# Ejecutar en desarrollo
-dotnet run --project src/Empleados.Desktop
-
-# Solo la API (pruebas de API)
-dotnet run --project src/Empleados.Api
-
-# Generar el .exe autocontenido en .\dist
-.\publish.ps1            # solo exe
-.\publish.ps1 -Zip       # exe + zip
-```
-
-### Publicar una Release
-Empuja un tag y GitHub Actions construye y adjunta el `.exe`:
-
-```powershell
-git tag v1.0.0
-git push origin v1.0.0
-```
-
----
-
-## Notas
-- Puerto fijo `5230`. Si esta ocupado, la app avisa al arrancar.
-- Stack: .NET 9, WPF, ASP.NET Core, EF Core 9, SQLite, Swagger.
+El codigo fuente esta en `src/`. Para compilar desde fuente y generar releases, ver
+[`docs/NOTAS-INTERNAS.md`](docs/NOTAS-INTERNAS.md).
