@@ -1,0 +1,18 @@
+## .NET build output
+bin/
+obj/
+dist/
+publish/
+*.user
+
+## Rider / VS
+.vs/
+.idea/
+
+## SQLite local (se crea en %LOCALAPPDATA%, nunca en el repo)
+*.db
+*.db-shm
+*.db-wal
+
+## Logs
+*.log
