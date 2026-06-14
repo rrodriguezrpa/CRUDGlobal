@@ -16,3 +16,6 @@ publish/
 
 ## Logs
 *.log
+
+## Secretos locales (nunca al repo; usar .env.example como plantilla)
+.env
