@@ -19,3 +19,6 @@ publish/
 
 ## Secretos locales (nunca al repo; usar .env.example como plantilla)
 .env
+
+## Launcher local con la URL del tunel y env propias (no compartir)
+run-demo.ps1
