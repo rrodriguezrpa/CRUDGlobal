@@ -34,6 +34,39 @@ public class EmpleadoInput
     public bool Activo { get; set; } = true;
 }
 
+// DTO de salida: el departamento viene como id (compatibilidad) y como nombre legible.
+public class EmpleadoOutput
+{
+    public int Id { get; set; }
+    public string NumeroEmpleado { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
+    public string Apellidos { get; set; } = string.Empty;
+    public string Dni { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public Departamento Departamento { get; set; }
+    public string DepartamentoNombre { get; set; } = string.Empty;
+    public string Puesto { get; set; } = string.Empty;
+    public decimal Salario { get; set; }
+    public DateTime FechaAlta { get; set; }
+    public bool Activo { get; set; }
+
+    public static EmpleadoOutput From(Empleado e) => new()
+    {
+        Id = e.Id,
+        NumeroEmpleado = e.NumeroEmpleado,
+        Nombre = e.Nombre,
+        Apellidos = e.Apellidos,
+        Dni = e.Dni,
+        Email = e.Email,
+        Departamento = e.Departamento,
+        DepartamentoNombre = e.Departamento.ToString(),
+        Puesto = e.Puesto,
+        Salario = e.Salario,
+        FechaAlta = e.FechaAlta,
+        Activo = e.Activo
+    };
+}
+
 public class PagedResult<T>
 {
     public IReadOnlyList<T> Items { get; set; } = Array.Empty<T>();

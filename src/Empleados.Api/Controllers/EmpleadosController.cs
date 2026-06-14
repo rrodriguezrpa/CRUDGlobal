@@ -17,8 +17,8 @@ public class EmpleadosController : ControllerBase
 
     /// <summary>Lista paginada de empleados con busqueda y filtro por departamento.</summary>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResult<Empleado>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResult<Empleado>>> Get(
+    [ProducesResponseType(typeof(PagedResult<EmpleadoOutput>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<EmpleadoOutput>>> Get(
         [FromQuery] string? search,
         [FromQuery] Departamento? departamento,
         [FromQuery] int page = 1,
@@ -50,9 +50,9 @@ public class EmpleadosController : ControllerBase
             .Take(pageSize)
             .ToListAsync();
 
-        return Ok(new PagedResult<Empleado>
+        return Ok(new PagedResult<EmpleadoOutput>
         {
-            Items = items,
+            Items = items.Select(EmpleadoOutput.From).ToList(),
             Page = page,
             PageSize = pageSize,
             TotalItems = total
@@ -61,20 +61,20 @@ public class EmpleadosController : ControllerBase
 
     /// <summary>Obtiene un empleado por Id.</summary>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(Empleado), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EmpleadoOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Empleado>> GetById(int id)
+    public async Task<ActionResult<EmpleadoOutput>> GetById(int id)
     {
         var empleado = await _db.Empleados.FindAsync(id);
-        return empleado is null ? NotFound() : Ok(empleado);
+        return empleado is null ? NotFound() : Ok(EmpleadoOutput.From(empleado));
     }
 
     /// <summary>Crea un empleado. El servidor asigna NumeroEmpleado.</summary>
     [HttpPost]
-    [ProducesResponseType(typeof(Empleado), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(EmpleadoOutput), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Empleado>> Create([FromBody] EmpleadoInput input)
+    public async Task<ActionResult<EmpleadoOutput>> Create([FromBody] EmpleadoInput input)
     {
         var error = await Validar(input, null);
         if (error is not null) return error;
@@ -96,16 +96,16 @@ public class EmpleadosController : ControllerBase
         _db.Empleados.Add(empleado);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { id = empleado.Id }, empleado);
+        return CreatedAtAction(nameof(GetById), new { id = empleado.Id }, EmpleadoOutput.From(empleado));
     }
 
     /// <summary>Actualiza un empleado existente.</summary>
     [HttpPut("{id:int}")]
-    [ProducesResponseType(typeof(Empleado), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EmpleadoOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Empleado>> Update(int id, [FromBody] EmpleadoInput input)
+    public async Task<ActionResult<EmpleadoOutput>> Update(int id, [FromBody] EmpleadoInput input)
     {
         var empleado = await _db.Empleados.FindAsync(id);
         if (empleado is null) return NotFound();
@@ -123,7 +123,7 @@ public class EmpleadosController : ControllerBase
         empleado.Activo = input.Activo;
 
         await _db.SaveChangesAsync();
-        return Ok(empleado);
+        return Ok(EmpleadoOutput.From(empleado));
     }
 
     /// <summary>Elimina un empleado por Id.</summary>
